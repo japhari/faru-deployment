@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'faru-gateway-core',
       cwd: '../faru-gateway-core',
-      script: '/Users/jeph/.nvm/versions/node/v16.20.2/bin/node',
+      script: 'node',
       args: 'lib/server.js',
       instances: 1,
       env_production: {
@@ -17,8 +17,8 @@ module.exports = {
     {
       name: 'faru-gateway-console',
       cwd: '../faru-gateway-ui',
-      script: 'npm',
-      args: 'start',
+      script: './node_modules/.bin/http-server',
+      args: './dist -p 9000',
       instances: 1,
       env_production: {
         NODE_ENV: 'production',
