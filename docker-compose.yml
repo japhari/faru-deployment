@@ -1,0 +1,55 @@
+services:
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:4.0
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  faru-gateway-core:
+    container_name: faru-gateway-core
+    build:
+      context: ../faru-gateway-core
+      dockerfile: Dockerfile
+    environment:
+      mongo_url: "mongodb://mongo-db/faru-mnrt"
+      mongo_atnaUrl: "mongodb://mongo-db/faru-mnrt"
+      NODE_ENV: "production"
+    depends_on:
+      - mongo-db
+    ports:
+      - "17070:17070" # API (HTTPS)
+      - "15000:15000" # Router HTTPS
+      - "15001:15001" # Router HTTP
+    restart: unless-stopped
+
+  faru-gateway-console:
+    container_name: faru-gateway-console
+    build:
+      context: ../faru-gateway-ui
+      dockerfile: Dockerfile
+    environment:
+      OPENHIM_CONSOLE_PROTOCOL: "https"
+      OPENHIM_CORE_MEDIATOR_HOSTNAME: "localhost"
+      OPENHIM_MEDIATOR_API_PORT: "17070"
+      OPENHIM_CONSOLE_SHOW_LOGIN: "true"
+      KC_OPENHIM_SSO_ENABLED: "false"
+    ports:
+      - "9000:80"
+    depends_on:
+      - faru-gateway-core
+    restart: unless-stopped
+
+  master-mediator:
+    container_name: master-mediator-app
+    build:
+      context: ../master-gateway
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: "production"
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
